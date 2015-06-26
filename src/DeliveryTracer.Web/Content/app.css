@@ -1,0 +1,25 @@
+﻿body {
+    font-family: "Trebuchet MS";
+}
+
+.ko-grid {
+    margin-bottom: 1em;
+    width: 25em;
+    border: 1px solid silver;
+    background-color: White;
+    width: 100%;
+}
+
+    .ko-grid th {
+        text-align: left;
+        background-color: Black;
+        color: White;
+    }
+
+    .ko-grid td, th {
+        padding: 0.4em;
+    }
+
+        .ko-grid td:first-child {
+            width: 70%;
+        }

@@ -1,0 +1,52 @@
+﻿<div class="container">
+    <h3>Edit Pipeline</h3>
+    <hr />
+    <form name="pForm" novalidate>
+        <div class="form-group">
+            <label for="pipelineName">Pipeline Name : </label>
+            {{epCtrl.pipeline.PipelineName}}
+        </div>
+
+        <div class="form-group">
+            <label for="gitRepository">Git Repository URL : </label>
+            {{epCtrl.pipeline.GitRepository}}
+        </div>
+        
+        <div class="form-group">
+            <label for="gitRepository">Last Logged Git Commit Id : </label>
+            {{epCtrl.pipeline.LastCheckedGitCommitId}}
+        </div>
+
+        <div class="form-group">
+            <label for="gitRepository">Green Environment Name : </label>
+            <input type="text" name="greenEnvironment" class="form-control"
+                   placeholder="Ex: Green-Prod"
+                   required />
+            <span style="color:red" ng-show="pForm.greenEnvironment.$invalid">Please input your Green Environment Name</span>
+        </div>
+
+        <div class="form-group">
+            <label for="gitRepository">Blue Environment Name : </label>
+            <input type="text" name="blueEnvironment" class="form-control"
+                   placeholder="Ex: Blue-Prod"
+                   required />
+            <span style="color:red" ng-show="pForm.blueEnvironment.$invalid">Please input your Blue Environment Name</span>
+        </div>
+
+        <div class="form-group">
+            <label for="gitPattern">Git Commit Pattern : </label>
+            <input type="text" name="gitPattern" class="form-control"
+                   ng-value="epCtrl.pipeline.CommitPattern" />
+        </div>
+
+        <div class="jumbotron">
+            Copy the delivery link below, make changes and use in your CI tool : <br />
+            <b>curl "http://deliverytracer.hepsiburada.com/api/Trace/Save?p={{epCtrl.pipeline.PipelineName}}&e=<i>%ENVIRONMENT_NAME%</i>&v=<i>%VERSION_NUMBER%</i>"</b>
+        </div>
+
+        <div class="form-group">
+            <input type="button" class="btn btn-default pull-right" ng-click="epCtrl.updatePipeline()" value="Save">
+            <input type="button" class="btn btn-default pull-left" ng-click="epCtrl.pipelineList()" value="Go To Pipeline List">
+        </div>
+    </form>
+</div>

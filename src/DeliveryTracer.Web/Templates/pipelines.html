@@ -1,0 +1,21 @@
+﻿<div class="container">
+    <h3>Pipelines</h3>
+    <hr />
+    <button type="button" ng-click="pCtrl.createPipeline()" class="btn btn-default pull-right">Add New Pipeline</button>
+    <table class="table table-striped" ng-hide="pCtrl.pipelines.length === 0">
+        <thead>
+            <tr>
+                <th>Pipeline Name</th>
+                <th>Git Source</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="pipeline in pCtrl.pipelines">
+                <td>{{pipeline.PipelineName}}</td>
+                <td>{{pipeline.GitRepository}}</td>
+                <td><a href="#/editPipeline/{{pipeline.PipelineName}}">Edit / Details</a></td>
+                <td><a href="" ng-click="pCtrl.deletePipeline(pipeline.Id)">Delete</a></td>
+            </tr>
+        </tbody>
+    </table>
+</div>

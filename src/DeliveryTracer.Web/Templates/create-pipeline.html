@@ -1,0 +1,60 @@
+﻿<div class="container">
+    <h3>Create a New Pipeline</h3>
+    <hr />
+    <form name="pForm" novalidate>
+        <div class="form-group">
+            <label for="pipelineName">Pipeline Name : </label>
+            <input type="text" name="pipelineName" class="form-control"
+                   ng-model="pipeline.name"
+                   placeholder="Ex: Storefront.Web"
+                   ng-minlength="5"
+                   required />
+            <span style="color:red" ng-show="pForm.pipelineName.$invalid">Please input yout pipeline name (Minimum 5 character)</span>
+        </div>
+
+        <div class="form-group">
+            <label for="gitRepository">Git Repository URL : </label>
+            <input type="url" name="gitRepository" class="form-control"
+                   ng-model="pipeline.url"
+                   placeholder="Ex: http://gitlab.hepsiburada.com/mobile/mobileapiservice.git"
+                   required />
+            <span style="color:red" ng-show="pForm.gitRepository.$invalid">Please input your project's git address as (http)</span>
+        </div>
+
+        <div class="form-group">
+            <label for="gitRepository">Green Environment Name : </label>
+            <input type="text" name="greenEnvironment" class="form-control"
+                   ng-model="pipeline.green"
+                   placeholder="Ex: Green-Prod"
+                   required />
+            <span style="color:red" ng-show="pForm.greenEnvironment.$invalid">Please input your Green Environment Name</span>
+        </div>
+
+        <div class="form-group">
+            <label for="gitRepository">Blue Environment Name : </label>
+            <input type="text" name="blueEnvironment" class="form-control"
+                   ng-model="pipeline.blue"
+                   placeholder="Ex: Blue-Prod"
+                   required />
+            <span style="color:red" ng-show="pForm.blueEnvironment.$invalid">Please input your Blue Environment Name</span>
+        </div>
+
+        <div class="form-group">
+            <label for="gitPattern">Git Commit Pattern : </label>
+            <input type="text" name="gitPattern" class="form-control"
+                   ng-model="pipeline.pattern"
+                   placeholder="If your commit pattern looks like ''MOB-1200 New feature added'' then your pattern is ''MOB-(.*?)''" />
+
+        </div>
+
+        <div class="jumbotron" ng-show="cpCtrl.isSaved">
+            Copy the delivery link below, make changes and use in your CI tool : <br />
+            <b>curl "http://deliverytracer.hepsiburada.com/api/Trace/Save?p={{pipeline.name}}&e=<i>%ENVIRONMENT_NAME%</i>&v=<i>%VERSION_NUMBER%</i>"</b>
+        </div>
+
+        <div class="form-group">
+            <input type="button" class="btn btn-default pull-right" ng-click="cpCtrl.savePipeline()" ng-hide="cpCtrl.isSaved" ng-show="pForm.$valid" value="Save">
+            <input type="button" class="btn btn-default pull-right" ng-click="cpCtrl.pipelineList()" ng-show="cpCtrl.isSaved" value="Go To Pipeline List">
+        </div>
+    </form>
+</div>

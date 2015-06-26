@@ -1,0 +1,33 @@
+﻿<div class="container">
+    <h3>Logs</h3>
+    <hr />
+    <span>Pipeline : </span>
+    <select id="pSelect"
+            ng-model="sModel"
+            ng-change="lCtrl.selection()"
+            ng-options="pipeline as pipeline.PipelineName for pipeline in lCtrl.pipelines">
+        <option value="">Select Pipeline...</option>
+    </select>
+
+    <hr />
+
+    <table class="table" ng-hide="lCtrl.logs.length === 0">
+        <thead>
+            <tr>
+                <th>Version</th>
+                <th>Message</th>
+                <th>Author</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="log in lCtrl.logs" ng-style="log.EnvironmentName === 'green-prod' && {'background-color':'#DCF59D'} ||
+                                                        log.EnvironmentName === 'blue-prod' && {'background-color':'#C0BDFF'}">
+                <td>{{log.VersionString}}</td>
+                <td>{{log.Message}}</td>
+                <td>{{log.Author}}</td>
+                <td>{{log.DateTimeString}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
