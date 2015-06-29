@@ -1,9 +1,7 @@
 #imports
 import os
 import repository
-from flask import Flask, request, session, g, redirect, url_for, abort, \
-    render_template, flash, send_from_directory, jsonify
-import urlparse
+from flask import Flask, request, g, send_from_directory, jsonify
 
 #config
 DATABASE = 'delivery_tracer.sqlite'
@@ -51,13 +49,13 @@ def GetPipelineDetail(name):
     response = repository.GetPipelineDetail(name)
     return jsonify(response)
 
-@app.route('/api/CreatePipeline', methods=['POST'])
+@app.route('/api/CreatePipeline')
 def CreatePipeline():
-    form = request.form
-    strngs = form['g'].split('/')
+    args = request.args
+    strngs = args.get('g').split('/')
     gitFolder = strngs[len(strngs) - 1].replace('.git', '')
     #TODO : LastCommitId must be find and implement as last parameter of the function below
-    repository.CreatePipeline(form['p'], form['g'], gitFolder, form['r'], form['gr'], form['bl'], '')
+    repository.CreatePipeline(args.get('p'), args.get('g'), gitFolder, args.get('r'), args.get('gr'), args.get('bl'), '')
 
 @app.route('/api/UpdatePipeline')
 def CreatePipeline():
@@ -73,14 +71,5 @@ def CreatePipeline():
     #TODO : Git functions (which written by Erman) have to be used
 
 
-def parseUrl(url):
-    return urlparse.parse_qs(urlparse.urlparse(url).query)
-
-
 if __name__ == '__main__':
     app.run()
-
-
-
-ff5d86422fc4d23882be5b66de7e19cc7be5cc2e
-b85a417d86fa354762f4249308218dda834437cb
