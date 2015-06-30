@@ -5,10 +5,9 @@
 *.suo
 *.user
 *.sln.docstates
-
-# Database File
 *.sqlite
 
+.idea/
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
