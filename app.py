@@ -1,6 +1,6 @@
 #imports
 import os
-import repository
+from core import database, helpers, cmd_factory, git_commands
 from flask import Flask, request, g, send_from_directory, jsonify
 
 #config
@@ -10,12 +10,13 @@ DEBUG = True
 app = Flask(__name__)
 app.config.from_object(__name__)
 
+repo = database.repository(app)
+
 @app.before_request
 def before_request():
-    repository.init(app)
     if not os.path.exists(DATABASE):
-        repository.init_db()
-    g.db = repository.connect_db()
+        repo.init_db()
+    g.db = repo.connect_db()
 
 @app.teardown_request
 def teardown_request(exception):
@@ -37,38 +38,47 @@ def loadContent(file):
 def loadTemplae(file):
     return send_from_directory('templates', file)
 
-
 #API Calls
 @app.route('/api/GetPipelineList')
 def GetPipelineList():
-    response = repository.GetPipelineList()
+    response = repo.GetPipelineList()
     return jsonify(response)
 
 @app.route('/api/GetPipelineDetail/<name>')
 def GetPipelineDetail(name):
-    response = repository.GetPipelineDetail(name)
+    response = repo.GetPipelineDetail(name)
     return jsonify(response)
 
 @app.route('/api/CreatePipeline')
 def CreatePipeline():
     args = request.args
-    strngs = args.get('g').split('/')
-    gitFolder = strngs[len(strngs) - 1].replace('.git', '')
-    #TODO : LastCommitId must be find and implement as last parameter of the function below
-    repository.CreatePipeline(args.get('p'), args.get('g'), gitFolder, args.get('r'), args.get('gr'), args.get('bl'), '')
+    git_repository = args.get('g')
 
-@app.route('/api/UpdatePipeline')
-def CreatePipeline():
-    args = request.args
-    repository.UpdatePipeline(args.get('p'), args.get('r'))
+    if len(git_repository.split('/')) == 0:
+        raise ValueError
 
-@app.route('/api/CreateLog')
-def CreatePipeline():
-    args = request.args
-    pipeline =  args.get('p')
-    environment = args.get('e')
-    version = args.get('v')
-    #TODO : Git functions (which written by Erman) have to be used
+    project_name = helpers.get_project_name(git_repository)
+
+    commands = cmd_factory.GitCommand()
+    commands.add(git_commands.clone(git_repository, project_name))
+    commands.add(git_commands.log(project_name,""))
+    commands.run()
+
+    command_result = {}
+
+    for r in commands.results:
+        if r.command is "log":
+            command_result = r
+            break
+
+    if len(command_result.msg) > 0:
+        raise ValueError(command_result.msg)
+
+    commit_id = helpers.get_commit_id(command_result.output)
+
+    return commit_id
+    #repo.CreatePipeline(args.get('p'), args.get('g'), project_name, args.get('r'), args.get('gr'), args.get('bl'), commit_id)
+
 
 
 if __name__ == '__main__':
