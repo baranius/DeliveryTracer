@@ -17,8 +17,8 @@
             return $http.get(urlBase + "/CreatePipeline?p=" + pipeline + "&g=" + gitAddress + "&r=" + gitPattern + "&gr=" + greenEnv + "&bl=" + blueEnv);
         }
 
-        factory.updatePipeline = function (pipeline, gitPattern) {
-            return $http.get(urlBase + "/UpdatePipeline?p=" + pipeline + "&r=" + gitPattern);
+        factory.updatePipeline = function (pipeline, gitPattern, greenEnv, blueEnv) {
+            return $http.get(urlBase + "/UpdatePipeline?p=" + pipeline + "&r=" + gitPattern + "&gr=" + greenEnv + "&bl=" + blueEnv);
         }
 
         factory.deletePipeline = function (pipelineId) {

@@ -1,4 +1,5 @@
 import sqlite3
+import result_models
 from flask import g
 from contextlib import closing
 
@@ -8,7 +9,7 @@ class repository():
         self.app = appReference
 
     def connect_db(self):
-        return sqlite3.connect(self.app.config['DATABASE'])
+        return sqlite3.connect('delivery_tracer.sqlite')
 
     def init_db(self):
         with closing(self.connect_db()) as db:
@@ -31,45 +32,56 @@ class repository():
 
         cursor = g.db.execute(query)
 
-        response = [
-                    dict(
-                        Id = row[0],
-                        PipelineName = row[1],
-                        GitRepository = row[2],
-                        GreenEnvironment = row[3],
-                        BlueEnvironment = row[4],
-                    )
-                    for row in cursor.fetchall()
-                    ]
+        g.db.commit()
+
+        response = []
+
+        for row in cursor.fetchall():
+            response.append(
+                 {
+                    'Id' : row[0],
+                    'PipelineName' : row[1],
+                    'GitRepository' : row[2],
+                    'GreenEnvironment' : row[3],
+                    'BlueEnvironment' : row[4]
+                }
+            )
 
         return response
 
-    def GetPipelineDetail(self, name):
+    def GetPipelineDetail(self, name, asObject=False):
         query = """SELECT
                      Id,
                      PipelineName,
                      GitRepository,
-                     GitFolderName,
                      CommitPattern,
                      GreenEnvironment,
                      BlueEnvironment,
-                     LastCheckedGitCommitId
+                     LastCheckedGitCommitId,
+                     GitFolderName
                     FROM Pipeline
                     WHERE PipelineName = ?"""
         cursor = g.db.execute(query, [name])
 
-        response = [
-                    dict(
-                        Id = row[0],
-                        PipelineName = row[1],
-                        GitRepository = row[2],
+        g.db.commit()
 
-                        GreenEnvironment = row[3],
-                        BlueEnvironment = row[4],
-                    )
-                    for row in cursor.fetchall()
-                    ]
-        return response
+        if asObject:
+            for row in cursor.fetchall():
+                pipeline = result_models.PipelineItem(row[7], row[6], row[3])
+                return pipeline
+
+        else:
+            for row in cursor.fetchall():
+                return {
+                    "Id": row[0],
+                    "PipelineName": row[1],
+                    "GitRepository": row[2],
+                    "GitCommitPattern": row[3],
+                    "GreenEnvironment": row[4],
+                    "BlueEnvironment": row[5],
+                    "LastCheckedGitCommitId": row[6]
+                   }
+
 
     def CreatePipeline(self, pipelineName, gitRepository, gitFolderName, commitPattern, greenEnvironment, blueEnvironment, lastCheckedGitCommitId):
 
@@ -93,17 +105,23 @@ class repository():
                              ?,
                              ?
                         )                    """
-        cursor = g.db.execute(query, [pipelineName, gitRepository, gitFolderName, commitPattern, \
+        g.db.execute(query, [pipelineName, gitRepository, gitFolderName, commitPattern, \
                                       greenEnvironment, blueEnvironment, lastCheckedGitCommitId])
 
-    def UpdatePipeline(self, pipelineId, pipelineName, commitPattern):
+        result = g.db.commit()
+
+        return result
+
+    def UpdatePipeline(self, pipelineName, commitPattern, blueEnvironment, greenEnvironment):
         query = """UPDATE Pipeline
                     SET
-                    PipelineName = ?,
-                    CommitPattern = ?
-                    WHERE Id = ?
+                    CommitPattern = ?,
+                    BlueEnvironment = ?,
+                    GreenEnvironment = ?
+                    WHERE PipelineName = ?
                     """
-        cursor = g.db.execute(query, [pipelineName, commitPattern, pipelineId])
+        g.db.execute(query, [commitPattern, blueEnvironment, greenEnvironment, pipelineName])
+        g.db.commit()
 
 
     def CreateLog(self, pipelineId, commitId, environmentName, author, message, versionString, datetime):
@@ -128,7 +146,8 @@ class repository():
                              ?
                         )        """
 
-        cursor = g.db.execute(query, [pipelineId, commitId, environmentName, author, message, versionString, datetime])
+        g.db.execute(query, [pipelineId, commitId, environmentName, author, message, versionString, datetime])
+        g.db.commit()
 
     def GetLogsByPipelineId(self, pipelineId):
         query = """ SELECT
@@ -144,16 +163,20 @@ class repository():
                     ORDER By DateTime DESC"""
         cursor = g.db.execute(query, [pipelineId])
 
-        response = [
-                    dict(
-                        PipelineId = row[0],
-                        CommitId = row[1],
-                        EnvironmentName = row[2],
-                        Author = row[3],
-                        Message = row[4],
-                        VersionString = row[5],
-                        DateTime = row[6]
-                    )
-                    for row in cursor.fetchall()
-                    ]
+        g.db.commit()
+
+        response = []
+
+        for row in cursor.fetchall():
+            response.append(
+                {
+                        "PipelineId": row[0],
+                        "CommitId": row[1],
+                        "EnvironmentName": row[2],
+                        "Author": row[3],
+                        "Message": row[4],
+                        "VersionString": row[5],
+                        "DateTime": row[6]
+                }
+            )
         return response

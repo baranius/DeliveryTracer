@@ -1,4 +1,4 @@
-class GitCommand:
+class command_factory:
     """ Holds Git commands console """
     def __init__(self):
         self.commands = []

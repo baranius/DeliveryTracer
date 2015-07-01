@@ -1,10 +1,10 @@
 #imports
 import os
+import json
 from core import database, helpers, cmd_factory, git_commands
-from flask import Flask, request, g, send_from_directory, jsonify
+from flask import Flask, request, g, send_from_directory
 
 #config
-DATABASE = 'delivery_tracer.sqlite'
 DEBUG = True
 
 app = Flask(__name__)
@@ -14,7 +14,7 @@ repo = database.repository(app)
 
 @app.before_request
 def before_request():
-    if not os.path.exists(DATABASE):
+    if not os.path.exists('delivery_tracer.sqlite'):
         repo.init_db()
     g.db = repo.connect_db()
 
@@ -42,12 +42,14 @@ def loadTemplae(file):
 @app.route('/api/GetPipelineList')
 def GetPipelineList():
     response = repo.GetPipelineList()
-    return jsonify(response)
+    return json.dumps(response)
 
-@app.route('/api/GetPipelineDetail/<name>')
-def GetPipelineDetail(name):
+@app.route('/api/GetPipelineDetail')
+def GetPipelineDetail():
+    args = request.args
+    name = args.get('p')
     response = repo.GetPipelineDetail(name)
-    return jsonify(response)
+    return json.dumps(response)
 
 @app.route('/api/CreatePipeline')
 def CreatePipeline():
@@ -59,7 +61,7 @@ def CreatePipeline():
 
     project_name = helpers.get_project_name(git_repository)
 
-    commands = cmd_factory.GitCommand()
+    commands = cmd_factory.command_factory()
     commands.add(git_commands.clone(git_repository, project_name))
     commands.add(git_commands.log(project_name,""))
     commands.run()
@@ -76,9 +78,43 @@ def CreatePipeline():
 
     commit_id = helpers.get_commit_id(command_result.output)
 
-    return commit_id
-    #repo.CreatePipeline(args.get('p'), args.get('g'), project_name, args.get('r'), args.get('gr'), args.get('bl'), commit_id)
+    result = repo.CreatePipeline(args.get('p'), args.get('g'), project_name, args.get('r'), args.get('gr'), args.get('bl'), commit_id)
 
+    return json.dumps({"success":True})
+
+@app.route('/api/UpdatePipeline')
+def UpdatePipeline():
+    args = request.args
+    project_name = args.get('p')
+    commit_pattern = args.get('r')
+    greenEnv = args.get('gr')
+    blueEnv = args.get('bl')
+
+    repo.UpdatePipeline(project_name,commit_pattern, blueEnv, greenEnv)
+
+    return json.dumps({"success":True})
+
+@app.route('/api/SaveLog')
+def SaveLog():
+    args = request.args
+    project_name = args.get('p')
+    environment = args.get('e')
+    version = args.get('v')
+
+    pipeline = repo.GetPipelineDetail(project_name,True)
+
+    factory = cmd_factory.command_factory()
+    folder_name = pipeline.get_folder_name()
+    last_commit_id = pipeline.get_last_commit_id()
+
+    factory.add(git_commands.log(folder_name, last_commit_id))
+    factory.run()
+
+    result = factory.results[0].output
+
+    response = helpers.get_comments(result, pipeline.get_git_pattern())
+
+    return json.dumps(response)
 
 
 if __name__ == '__main__':

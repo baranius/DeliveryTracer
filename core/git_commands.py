@@ -4,7 +4,7 @@ import os
 import sys
 import result_models, settings
 
-config = settings._Const()
+config = settings.constants()
 
 class command:
     def execute(self): pass
@@ -17,15 +17,15 @@ class clone(command):
 
     def execute(self):
         try:
-            if not os.path.exists(config.TEMP_PATH()):
-                os.makedirs(config.TEMP_PATH())
+            temp_path = config.TEMP_PATH()
+            project_path = config.PROJECT_PATH(self.projectName)
 
-            if(os.path.exists(os.path.join(config.TEMP_PATH(), self.projectName))):
+            if os.path.exists(project_path):
                 return result_models.CommandResult(clone.__name__, "", "Project {0} has already been cloned before! Skipping this command".format(self.projectName))
 
             pr = subprocess\
                     .Popen( 'git clone {0}'.format(self.repositoryUri) ,\
-                             cwd = os.path.dirname( config.TEMP_PATH() ),\
+                             cwd = temp_path,\
                              shell = True, \
                              stdout = subprocess.PIPE,\
                              stderr = subprocess.PIPE )
@@ -48,6 +48,8 @@ class log(command):
 
     def execute(self):
         try:
+            project_path = config.PROJECT_PATH(self.project_name)
+
             if len(self.last_commit_id) > 0:
                 self.log_command = 'git log {0}^..HEAD'.format(self.last_commit_id)
             else:
@@ -55,7 +57,7 @@ class log(command):
 
             pr = subprocess\
                     .Popen( self.log_command,\
-                             cwd = config.PROJECT_PATH(self.project_name),\
+                             cwd = project_path,\
                              shell = True, \
                              stdout = subprocess.PIPE,\
                              stderr = subprocess.PIPE )

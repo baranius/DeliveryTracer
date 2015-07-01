@@ -1,4 +1,5 @@
 import re
+import result_models
 
 def get_project_name(repository_uri):
     strings = repository_uri.split('/')
@@ -11,19 +12,32 @@ def get_project_name(repository_uri):
 
     return projectName
 
-def get_commit_id(message):
-    regex_pattern = "(commit).*?(\\n)"
-    matches = re.match(regex_pattern, message)
+def get_comments(message, comment_pattern):
+    results = []
 
-    return matches.group().replace("\n","")
+    message = message.replace("\n\ncommit", "\n\n commit")
 
-def get_author(message):
-    regex_pattern = "(Author).*?(\\n)"
-    matches = re.match(regex_pattern, message)
+    messages = message.split("commit")
 
-    return matches.group().replace("\n","")
+    for m in messages:
+        if len(m) > 1:
+            m = "commit " + m
 
-def get_commit_message(message, patern):
-    matches = re.match(patern, message)
+            #get commit id
+            commit_pattern = "(commit).*?(\\n)"
+            commit_match = re.match(commit_pattern, m)
+            commit_id = commit_match.group().replace("\n","").replace("commit ", "")
 
-    return matches.group().replace("\n","")
+            #get author
+            author_pattern = "(Author).*?(\\n)"
+            author_match = re.match(author_pattern, m)
+            author = author_match.group().replace("\n","").replace("Author: ", "")
+
+            #get commit message
+            comment_match = re.match(comment_pattern, m)
+            comment_message = comment_match.group().replace("\n","")
+
+            result = result_models.LogItem(commit_id, author, comment_message)
+            results.append(result)
+
+    return results

@@ -3,40 +3,42 @@
     <hr />
     <form name="pForm" novalidate>
         <div class="form-group">
-            <label for="pipelineName">Pipeline Name : </label>
+            <label>Pipeline Name : </label>
             {{epCtrl.pipeline.PipelineName}}
         </div>
 
         <div class="form-group">
-            <label for="gitRepository">Git Repository URL : </label>
+            <label>Git Repository URL : </label>
             {{epCtrl.pipeline.GitRepository}}
         </div>
         
         <div class="form-group">
-            <label for="gitRepository">Last Logged Git Commit Id : </label>
+            <label>Last Logged Git Commit Id : </label>
             {{epCtrl.pipeline.LastCheckedGitCommitId}}
         </div>
 
         <div class="form-group">
-            <label for="gitRepository">Green Environment Name : </label>
-            <input type="text" name="greenEnvironment" class="form-control"
+            <label for="greenEnvironment">Green Environment Name : </label>
+            <input type="text" id="greenEnvironment" name="greenEnvironment" class="form-control"
                    placeholder="Ex: Green-Prod"
+                   value="{{epCtrl.pipeline.GreenEnvironment}}"
                    required />
             <span style="color:red" ng-show="pForm.greenEnvironment.$invalid">Please input your Green Environment Name</span>
         </div>
 
         <div class="form-group">
-            <label for="gitRepository">Blue Environment Name : </label>
-            <input type="text" name="blueEnvironment" class="form-control"
+            <label for="blueEnvironment">Blue Environment Name : </label>
+            <input type="text" id="blueEnvironment" name="blueEnvironment" class="form-control"
                    placeholder="Ex: Blue-Prod"
+                   value="{{epCtrl.pipeline.BlueEnvironment}}"
                    required />
             <span style="color:red" ng-show="pForm.blueEnvironment.$invalid">Please input your Blue Environment Name</span>
         </div>
 
         <div class="form-group">
             <label for="gitPattern">Git Commit Pattern : </label>
-            <input type="text" name="gitPattern" class="form-control"
-                   ng-value="epCtrl.pipeline.CommitPattern" />
+            <input type="text" id="gitPattern" name="gitPattern" class="form-control"
+                   ng-value="epCtrl.pipeline.GitCommitPattern" />
         </div>
 
         <div class="jumbotron">
