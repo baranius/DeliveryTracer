@@ -137,6 +137,16 @@ def SaveLog():
 
     return json.dumps(response)
 
+@app.route('/api/GetPipelineLogs')
+def GetPipelineLogs():
+    args = request.args
+    pipeline_name = args.get('p')
+
+    pipelineObj = repo.GetPipelineDetail(pipeline_name, True)
+
+    logs = repo.GetLogsByPipelineId(pipelineObj.get_pipeline_id())
+
+    return json.dumps(logs)
 
 if __name__ == '__main__':
     app.run()

@@ -55,16 +55,11 @@
             var index = document.getElementById('pSelect').value;
             
             var pipeline = scope.pipelines[index];
-            scope.greenEnvironmentKey = pipeline.greenEnvironment;
-            scope.blueEnvironmentKey = pipeline.blueEnvironment;
-
-            console.log(pipeline);
-            console.log(scope.greenEnvironmentKey);
-            console.log(scope.blueEnvironmentKey);
+            scope.greenEnvironmentKey = pipeline.GreenEnvironment;
+            scope.blueEnvironmentKey = pipeline.BlueEnvironment;
 
             requestFactory.getLogs(pipeline.PipelineName).success(function (logs) {
                 scope.logs = logs;
-
             });
         };
     });

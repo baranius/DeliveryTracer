@@ -21,8 +21,8 @@
             </tr>
         </thead>
         <tbody>
-            <tr ng-repeat="log in lCtrl.logs" ng-style="log.EnvironmentName === 'green-prod' && {'background-color':'#DCF59D'} ||
-                                                        log.EnvironmentName === 'blue-prod' && {'background-color':'#C0BDFF'}">
+            <tr ng-repeat="log in lCtrl.logs" ng-style="log.EnvironmentName === lCtrl.greenEnvironmentKey && {'background-color':'#DCF59D'} ||
+                                                        log.EnvironmentName === lCtrl.blueEnvironmentKey && {'background-color':'#C0BDFF'}">
                 <td>{{log.VersionString}}</td>
                 <td>{{log.Message}}</td>
                 <td>{{log.Author}}</td>
