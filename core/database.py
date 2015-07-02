@@ -67,7 +67,7 @@ class repository():
 
         if asObject:
             for row in cursor.fetchall():
-                pipeline = result_models.PipelineItem(row[7], row[6], row[3])
+                pipeline = result_models.PipelineItem(row[0], row[7], row[6], row[3])
                 return pipeline
 
         else:
@@ -180,3 +180,12 @@ class repository():
                 }
             )
         return response
+
+    def DeletePipeline(self, pipeline_id):
+        query = """DELETE FROM Pipeline WHERE Id = ?"""
+        g.db.execute(query, [pipeline_id])
+        g.db.commit()
+
+        query2 = """DELETE FROM Log WHERE PipelineId = ?"""
+        g.db.execute(query2, [pipeline_id])
+        g.db.commit()

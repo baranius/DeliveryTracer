@@ -12,7 +12,7 @@ def get_project_name(repository_uri):
 
     return projectName
 
-def get_comments(message, comment_pattern):
+def get_commits(message, comment_pattern):
     results = []
 
     message = message.replace("\n\ncommit", "\n\n commit")
@@ -25,19 +25,30 @@ def get_comments(message, comment_pattern):
 
             #get commit id
             commit_pattern = "(commit).*?(\\n)"
-            commit_match = re.match(commit_pattern, m)
+            commit_match = re.search(commit_pattern, m)
             commit_id = commit_match.group().replace("\n","").replace("commit ", "")
 
             #get author
             author_pattern = "(Author).*?(\\n)"
-            author_match = re.match(author_pattern, m)
+            author_match = re.search(author_pattern, m)
             author = author_match.group().replace("\n","").replace("Author: ", "")
 
             #get commit message
-            comment_match = re.match(comment_pattern, m)
-            comment_message = comment_match.group().replace("\n","")
+            comment_pattern = comment_pattern + "(\\n)"
+            comment_match = re.search(comment_pattern, m)
 
-            result = result_models.LogItem(commit_id, author, comment_message)
-            results.append(result)
+            if not comment_match is None:
+                comment_message = comment_match.group().replace("\n","")
+                result = result_models.LogItem(commit_id, author, comment_message)
+                results.append(result)
 
-    return results
+    resultDictionary = [
+        dict(
+            commitId = r.get_commit_id(),
+            authorInfo = r.get_author(),
+            commentText = r.get_comment()
+        )
+        for r in results
+    ]
+
+    return resultDictionary, results

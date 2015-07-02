@@ -7,5 +7,5 @@ create table Log
     Author                      nvarchar(225),
     Message                     nvarchar(500),
     VersionString               nvarchar(225),
-    DateTime                    datetime
+    DateTime                    nvarchar(50)
 )

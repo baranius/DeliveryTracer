@@ -43,7 +43,7 @@
 
         <div class="jumbotron">
             Copy the delivery link below, make changes and use in your CI tool : <br />
-            <b>curl "http://deliverytracer.hepsiburada.com/api/Trace/Save?p={{epCtrl.pipeline.PipelineName}}&e=<i>%ENVIRONMENT_NAME%</i>&v=<i>%VERSION_NUMBER%</i>"</b>
+            <b>curl "http://deliverytracer.hepsiburada.com/api/Trace/SaveLog?p={{pipeline.name}}&e=<i>%ENVIRONMENT_NAME%</i>&v=<i>%VERSION_NUMBER%</i>"</b>
         </div>
 
         <div class="form-group">

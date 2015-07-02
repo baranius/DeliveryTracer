@@ -21,10 +21,14 @@ class CommandResult:
         return self.command
 
 class PipelineItem:
-    def __init__(self, folderName, lastCommitId, gitPattern):
+    def __init__(self, id, folderName, lastCommitId, gitPattern):
+        self.Id = id
         self.folder_name = folderName
         self.last_commit_id = lastCommitId
         self.git_pattern = gitPattern
+
+    def get_pipeline_id(self):
+        return self.Id
 
     def get_folder_name(self):
         return self.folder_name

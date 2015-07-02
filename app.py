@@ -1,6 +1,7 @@
 #imports
 import os
 import json
+import datetime
 from core import database, helpers, cmd_factory, git_commands
 from flask import Flask, request, g, send_from_directory
 
@@ -76,9 +77,11 @@ def CreatePipeline():
     if len(command_result.msg) > 0:
         raise ValueError(command_result.msg)
 
-    commit_id = helpers.get_commit_id(command_result.output)
+    output = command_result.output
+    (resDict, resObj) = helpers.get_commits(output, args.get('r'))
 
-    result = repo.CreatePipeline(args.get('p'), args.get('g'), project_name, args.get('r'), args.get('gr'), args.get('bl'), commit_id)
+    for r in resObj:
+        repo.CreatePipeline(args.get('p'), args.get('g'), project_name, args.get('r'), args.get('gr'), args.get('bl'), r.get_commit_id())
 
     return json.dumps({"success":True})
 
@@ -91,6 +94,15 @@ def UpdatePipeline():
     blueEnv = args.get('bl')
 
     repo.UpdatePipeline(project_name,commit_pattern, blueEnv, greenEnv)
+
+    return json.dumps({"success":True})
+
+@app.route('/api/DeletePipeline')
+def DeletePipeline():
+    args = request.args
+    pipeline_id = args.get('id')
+
+    repo.DeletePipeline(pipeline_id)
 
     return json.dumps({"success":True})
 
@@ -112,7 +124,16 @@ def SaveLog():
 
     result = factory.results[0].output
 
-    response = helpers.get_comments(result, pipeline.get_git_pattern())
+    (response, data) = helpers.get_commits(result, pipeline.get_git_pattern())
+
+    for d in data:
+        pipeline_id = pipeline.get_pipeline_id()
+        commit_id = d.get_commit_id()
+        author_info = d.get_author()
+        comment_text = d.get_comment()
+        comment_text = comment_text.decode('utf-8')
+        date = datetime.date.today().strftime("%d.%m.%Y %H:%M")
+        repo.CreateLog(pipeline_id,commit_id,environment,author_info,comment_text,version, date)
 
     return json.dumps(response)
 
